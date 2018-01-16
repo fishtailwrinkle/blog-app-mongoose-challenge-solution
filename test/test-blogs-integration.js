@@ -25,16 +25,68 @@ function seedBlogData() {
 	return BlogPost.insertMany(seedData);
 }
 
-//generateBlogData()
+function generateBlogData() {
+	return {
+		author: {
+			firstName: faker.name.firstName(), 
+			lastName: faker.name.lastName()
+		},
+		title: faker.lorem.words(),
+		content: faker.lorem.paragraph(),
+		created: faker.date.past()
+	};
+}
 
-/*
-author: {
-    firstName: String,
-    lastName: String
-  },
-  title: {type: String, required: true},
-  content: {type: String},
-  created: {type: Date, default: Date.now}
-*/
+function tearDownDb() {
+	console.warn('Deleting database!');
+	return mongoose.connection.dropDatabase();
+}
+
+describe('Blogs API resource', function() {
+
+	before(function() {
+		return runServer(TEST_DATABASE_URL);
+	});
+
+	beforeEach(function() {
+		return seedBlogData();
+	}); 
+
+	afterEach(function() {
+		return tearDownDb();
+	});
+
+	after(function() {
+		return closeServer();
+	});
+
+	// GET
+	describe('GET endpoint', function() {
+		it('should return all existing blog posts', function() {
+			let res;
+			return chai.request(app)
+				.get('/posts')
+				.then(function(_res) {
+					res = _res;
+					expect(res).to.have.status(200);
+				})
 
 
+		});
+
+
+
+	});
+
+
+
+
+
+
+
+
+
+
+
+
+});
