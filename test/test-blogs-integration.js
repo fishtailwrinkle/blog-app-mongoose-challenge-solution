@@ -69,24 +69,43 @@ describe('Blogs API resource', function() {
 				.then(function(_res) {
 					res = _res;
 					expect(res).to.have.status(200);
+					expect(res.body).to.have.length.of.at.least(1);
+					return BlogPost.count();
 				})
-
-
+				.then(function(count) {
+					expect(res.body).to.have.length.of(count);
+				});
 		});
 
+		it('should return blog posts with right fields', function() {
+			let resBlog;
+			return chai.request(app)
+				.get('/posts')
+				.then(function(res) {
+					expect(res).to.have.status(200);
+					expect(res).to.be.json;
+					expect(res.body).to.be.a('array');
+					expect(res.body).to.have.length.of.at.least(1);
 
-
+					res.body.forEach(function(blog) {
+						expect(blog).to.be.a('object');
+						expect(blog).to.include.keys('id', 'title', 'content', 'author', 'created');
+					}); 
+					resBlog = res.body[0];
+					return BlogPost.findById(resBlog.id);
+				})
+				.then(function(blog) {
+					expect(resBlog.id).to.equal(blog.id);
+					expect(resBlog.title).to.equal(blog.title);
+					expect(resBlog.content).to.equal(blog.content);
+					expect(resBlog.author.firstName).to.equal(blog.author.firstName);
+					expect(resBlog.author.lastName).to.equal(blog.author.lastName);
+				});
+		});
 	});
 
 
-
-
-
-
-
-
-
-
+	// POST
 
 
 });
